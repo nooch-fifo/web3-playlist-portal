@@ -13,6 +13,7 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [allSongs, setAllSongs] = useState([]);
   const [songInput, setSongInput] = useState(null);
+  const [loading, setLoading] = useState(false);
   
   const contractAddress = "0x5512eDC9D568dEF3c38129716489AF219cAab427";
   const contractABI = abi.abi;
@@ -84,10 +85,12 @@ const App = () => {
         console.log("Retrieved total song count: ", songCount.toNumber());
 
         // WRITE to Contract on Blockchain (changing Blockchain costs gas fees)
-        const songTxn = await playlistPortalContract.suggestSong(songInput);
+        const songTxn = await playlistPortalContract.suggestSong(songInput, { gasLimit: 1000000 });
+        setLoading(true);
         console.log("Mining...", songTxn.hash);
 
         await songTxn.wait();
+        setLoading(false);
         console.log("Mined: ", songTxn.hash);
 
         songCount = await playlistPortalContract.getTotalSongs();
@@ -112,7 +115,8 @@ const App = () => {
         const playlistPortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
         const songs = await playlistPortalContract.getAllSongs();
-
+        
+        // only pick out song, time, and sender for UI
         let songsFormatted = [];
         songs.forEach(song => {
           songsFormatted.push({
@@ -136,13 +140,19 @@ const App = () => {
     checkWalletConnection();
   }, [])
 
+
+if(loading){
+  return(
+    <p>⛏️ One moment please! Your transaction to the Blockchain is being mined... 💫</p>
+  )
+}
   
   return (
     <div className="mainContainer">
 
       <div className="dataContainer">
         <div className="header">
-        🎵 Hey there! 
+        🎶 Hey there! 
         </div>
         <div className="bio">
         My name is Dominic & this is my first ever project exploring Web3! Simply connect your Ethereum wallet & send me your favorite song. The idea is to have a Blockchain that serves as a playlist with everyone's top jams 🕺🤸🏾
@@ -159,8 +169,14 @@ const App = () => {
           <button className="songButton" onClick={addWallet}>Add Wallet! 💸 </button>
         )}
 
+        {currentAccount && (
+        <div className="playlist">
+          🎧 Playlist Portal: 
+        </div>
+      )}
+
         {allSongs.map((song, index) => {
-          return (
+          return (  
             <div className="submission" key={index} style={{marginTop: "16px", padding: "8px"}}>
               <div>🔐 Address of Sender: {song.address} </div>
               <div>🕑 Time Submitted: {song.timestamp.toString()} </div>

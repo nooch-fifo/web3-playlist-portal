@@ -18,6 +18,14 @@
   font-weight: 600;
 }
 
+.playlist {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 600;
+  margin-top: 128px;
+  margin-bottom: 32px;
+}
+
 .bio {
   text-align: center;
   color: gray;
@@ -44,4 +52,11 @@
 .submission {
   background: #6203fc;
   color: #FFF;
+}
+
+p {
+  text-align: center;
+  color: #6203fc;
+  font-size: 32px;
+  font-weight: 600;
 }
